@@ -1,0 +1,42 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:d="http://xamarin.com/schemas/2014/forms/design"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d"
+             x:Class="MyKJV.Views.LastRecitedPage">
+    <RefreshView IsRefreshing="{Binding IsBusy, Mode=TwoWay}" Command="{Binding LoadItemsCommand}">
+        <StackLayout>
+            <CollectionView x:Name="ItemsCollectionView"
+                ItemsSource="{Binding Items}" SelectionMode="Single" SelectedItem="{Binding SelectedVerse, Mode=OneWayToSource}">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate>
+                        <StackLayout Padding="10">
+                            <Label Text="{Binding FullTitle}" 
+                                d:Text="{Binding .}"
+                                LineBreakMode="NoWrap" 
+                                     BackgroundColor="LightSkyBlue" 
+                                Style="{DynamicResource ListItemTextStyle}" 
+                                FontSize="16" />
+                            <Label Text="{Binding Text}"  
+                                LineBreakMode="WordWrap"
+                                     BackgroundColor="LightGray" 
+                                Style="{DynamicResource ListItemDetailTextStyle}"
+                                FontSize="13" />
+                            <StackLayout Orientation="Horizontal">
+                                <Label Text="{Binding LastRecited}"
+                                     BackgroundColor="LightGray" 
+                                Style="{DynamicResource ListItemDetailTextStyle}"
+                                   FontSize="10"/>
+                                <Button Text="Recited Today" Clicked="Button_Clicked" ></Button>
+                            </StackLayout>
+                            <StackLayout.GestureRecognizers>
+                                <TapGestureRecognizer NumberOfTapsRequired="1" Tapped="OnItemSelected"></TapGestureRecognizer>
+                            </StackLayout.GestureRecognizers>
+                        </StackLayout>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+        </StackLayout>
+    </RefreshView>
+</ContentPage>

@@ -1,0 +1,82 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:d="http://xamarin.com/schemas/2014/forms/design"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+           xmlns:local="clr-namespace:MyKJV"
+             mc:Ignorable="d"
+             x:Class="MyKJV.Views.ItemsPage"
+             Title="{Binding Title}"
+             x:Name="BrowseItemsPage"
+              >
+    <ContentPage.Resources>
+        <local:VerseIsMemorizedValueConverter x:Key="VerseIsMemorizedValueConverter"/>
+    </ContentPage.Resources>
+    <ContentPage.ToolbarItems>
+        <ToolbarItem Text="Add" Clicked="AddItem_Clicked" />
+
+    </ContentPage.ToolbarItems>
+
+    <RefreshView IsRefreshing="{Binding IsBusy, Mode=TwoWay}" Command="{Binding LoadItemsCommand}">
+        <StackLayout BackgroundColor="LightGray">
+            <!--<CarouselView ItemsSource="{Binding BookDatas}"  CurrentItem="{Binding CurrentBookData, Mode=TwoWay}">
+                <CarouselView.ItemTemplate>
+                    <DataTemplate>
+                        <TextCell Text="{Binding BookName}"> </TextCell>
+                    </DataTemplate>
+                </CarouselView.ItemTemplate>
+            </CarouselView>-->
+            <StackLayout Orientation="Horizontal">
+              <Label Margin="5"  WidthRequest="125" Padding="10" Text="Testament" TextColor="LightSkyBlue" BackgroundColor="LightGray"></Label>
+                <Picker Margin="5"  TitleColor="LightSkyBlue"  WidthRequest="200"   x:Name="TestamentPicker" SelectedItem="{Binding TestamentName , 
+                Mode=OneWayToSource}"  SelectedIndexChanged="TestamentPicker_SelectedIndexChanged" Title="Old or New Testament" BackgroundColor="LightGray" >
+                    <Picker.ItemsSource>
+                        <x:Array Type="{x:Type x:String}">
+                            <x:String>Old</x:String>
+                            <x:String>New</x:String>
+                            <x:String>Both</x:String>
+                        </x:Array>
+                    </Picker.ItemsSource>
+                </Picker>
+            </StackLayout>
+            <StackLayout Orientation="Horizontal">
+                <Label Margin="5"  WidthRequest="125" Padding="10" Text="Book" TextColor="LightSkyBlue" BackgroundColor="LightGray"></Label>
+                <Picker  CharacterSpacing="2"  Margin="5"  WidthRequest="200"   TitleColor="LightSkyBlue" x:Name="BookPicker" BackgroundColor="LightGray"  ItemDisplayBinding="{Binding BookName}"  ItemsSource="{Binding BookDatas}"  SelectedItem="{Binding CurrentBookData , Mode=OneWayToSource}"  SelectedIndexChanged="BookPicker_SelectedIndexChanged" Title="Book"></Picker>
+            </StackLayout>
+            <!--<Picker x:Name="BookPicker" ItemDisplayBinding="{Binding BookName}"   ItemsSource="{Binding BookNames}"  SelectedItem="{Binding BookName , Mode=OneWayToSource}"  SelectedIndexChanged="BookPicker_SelectedIndexChanged" Title="Book"></Picker>-->
+            <StackLayout Orientation="Horizontal">
+                <Label Margin="5" WidthRequest="125" Padding="10" Text="Chapter" TextColor="LightSkyBlue" BackgroundColor="LightGray"></Label>
+                <Picker Margin="5" WidthRequest="200"  TitleColor="LightSkyBlue"  x:Name="ChapterPicker" BackgroundColor="LightGray"  ItemDisplayBinding="{Binding ChapterNumberStr}"    ItemsSource="{Binding Chapters}"  SelectedItem="{Binding CurrentChapter , Mode=OneWayToSource}"  SelectedIndexChanged="ChapterPicker_SelectedIndexChanged" Title="Chapter">
+                </Picker>
+            </StackLayout>
+            <CollectionView x:Name="ItemsCollectionView"
+                ItemsSource="{Binding Items}">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate>
+                        <StackLayout Padding="10">
+                            <Label Text="{Binding FullTitle}" 
+                                d:Text="{Binding .}"
+                                            BackgroundColor="{Binding IsMemorized, Converter={StaticResource VerseIsMemorizedValueConverter}}" 
+                                LineBreakMode="NoWrap" 
+                                Style="{DynamicResource ListItemTextStyle}" 
+                                FontSize="16" />
+                            <Label Text="{Binding Text}" 
+                                d:Text="Item descripton"
+                                BackgroundColor="{Binding IsMemorized, Converter={StaticResource VerseIsMemorizedValueConverter}}" 
+                                LineBreakMode="WordWrap"
+                                Style="{DynamicResource ListItemDetailTextStyle}"
+                                FontSize="13" >
+
+                            </Label>
+                            <StackLayout.GestureRecognizers>
+                                <TapGestureRecognizer NumberOfTapsRequired="1" Tapped="OnItemSelected"></TapGestureRecognizer>
+                                <SwipeGestureRecognizer   Command="{Binding SwipeCommand}"    Swiped="SwipeGestureRecognizer_Swiped"></SwipeGestureRecognizer>
+                            </StackLayout.GestureRecognizers>
+
+                        </StackLayout>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+        </StackLayout>
+    </RefreshView>
+</ContentPage>
