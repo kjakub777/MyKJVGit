@@ -132,6 +132,20 @@ namespace MyKJV.Services
                .OrderBy(x => x.ChapterNumber).ThenBy(x => x.VerseNumber));
 
         }
+        public async Task<IEnumerable<Verse>> GetMemoryVersesAsync(string testament)
+        {
+            var db = new DatabaseConnection().DbConnection();
+
+            if (testament == "Both")
+                return await Task.FromResult(db.Table<Verse>()
+               .Where(x => x.IsMemorized)
+               .OrderBy(x => x.BookPosition).ThenBy(x => x.BookName).ThenBy(x => x.ChapterNumber).ThenBy(x => x.VerseNumber));
+
+            else return await Task.FromResult(db.Table<Verse>()
+               .Where(x => x.IsMemorized && x.Testament == testament)
+               .OrderBy(x => x.BookPosition).ThenBy(x => x.BookName).ThenBy(x => x.ChapterNumber).ThenBy(x => x.VerseNumber));
+
+        }
 
         public async Task<bool> SetVerseMemorized(Verse v, bool val)
         {

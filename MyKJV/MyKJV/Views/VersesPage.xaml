@@ -25,10 +25,144 @@
                 </Picker.ItemsSource>
             </Picker>
 
-            <Picker x:Name="BookPicker"  ItemDisplayBinding="{Binding BookName}"  ItemsSource="{Binding BookDatas}"  SelectedItem="{Binding CurrentBookData , Mode=OneWayToSource}"  SelectedIndexChanged="BookPicker_SelectedIndexChanged" Title="Book"></Picker>
+            <!--<Picker x:Name="BookPicker"  ItemDisplayBinding="{Binding BookName}"  ItemsSource="{Binding BookDatas}"  SelectedItem="{Binding CurrentBookData , Mode=OneWayToSource}"  SelectedIndexChanged="BookPicker_SelectedIndexChanged" Title="Book"></Picker>-->
             <!--<Picker x:Name="ChapterPicker" ItemDisplayBinding="{Binding Number}"  ItemsSource="{Binding Chapters}"  SelectedItem="{Binding Chapter , Mode=OneWayToSource}"  SelectedIndexChanged="ChapterPicker_SelectedIndexChanged" Title="Chapter"></Picker>-->
-         
-            <CollectionView x:Name="ItemsCollectionView"
+
+            <ListView x:Name="ItemsCollectionView" BackgroundColor="Wheat"
+                 ItemsSource="{Binding MemoryBooks}"
+                IsGroupingEnabled="true" SelectionMode="Single" SelectedItem="{Binding SelectedVerse, Mode=OneWayToSource}">
+                <ListView.ItemTemplate>
+                    <DataTemplate>
+                        <ViewCell>
+                            <StackLayout Orientation="Horizontal"  VerticalOptions="Center">
+                                <Label
+                                            VerticalOptions="Center"
+                                            FontAttributes="Bold"
+                                            FontSize="Medium"
+                                            Text="{Binding .FullTitle}"
+                                            TextColor="Black"
+                                            VerticalTextAlignment="Center" />
+                                <Label    
+                            Text="{Binding FullTitle}"  
+                                    TextColor="Black"
+                                            VerticalTextAlignment="Center" 
+                            FontAttributes="Bold" FontSize="Medium" />
+                                <Label    FontSize="Small"
+                            Text="{Binding Text}"  />
+                                <StackLayout.GestureRecognizers>
+                                    <TapGestureRecognizer  NumberOfTapsRequired="1" Tapped="OnItemSelected"></TapGestureRecognizer>
+                                </StackLayout.GestureRecognizers>
+                            </StackLayout>
+                        </ViewCell>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+
+                <ListView.GroupHeaderTemplate>
+                    <DataTemplate>
+                        <ViewCell>
+                            <Grid >
+                                <Label
+                                                FontAttributes="Bold"
+                                                FontSize="Small"
+                                                Text="{Binding BookName} {Binding Count, StringFormat='Total verses: {0:D}'}"
+                                                TextColor="Gray"
+                                                VerticalTextAlignment="Center" />
+                                <!--<Image x:Name="ImgA" Source="{Binding StateIcon}"  Margin="0,0,5,0" HeightRequest="20" WidthRequest="20" HorizontalOptions="End"/>-->
+                                <Grid.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding Source={x:Reference currentPage}, Path=BindingContext.RefreshItemsCommand}"  NumberOfTapsRequired="1" CommandParameter="{Binding .}"/>
+                                </Grid.GestureRecognizers>
+                            </Grid>
+                        </ViewCell>
+               
+                    </DataTemplate>
+                </ListView.GroupHeaderTemplate>
+ 
+                <!--<ListView.GroupFooterTemplate>
+                    <DataTemplate>
+                        <Label         FontAttributes="Bold"
+                                                FontSize="Small" 
+                                                TextColor="Gray"
+                                                VerticalTextAlignment="Center" 
+                                       Text="{Binding BookName} {Binding Count, StringFormat='Total verses: {0:D}'}"
+                   Margin="0,0,0,10" />
+                    </DataTemplate>
+                </ListView.GroupFooterTemplate>-->
+            </ListView>
+            <!--<CollectionView x:Name="ItemsCollectionView"
+                 ItemsSource="{Binding MemoryBooks}"
+                IsGrouped="true" SelectionMode="Single" SelectedItem="{Binding SelectedVerse, Mode=OneWayToSource}">
+                <CollectionView.GroupHeaderTemplate>
+                    <DataTemplate>
+                        <Label Text="{Binding Name}"
+                   BackgroundColor="LightGray"
+                   FontSize="Large"
+                   FontAttributes="Bold" />
+                    </DataTemplate>
+                </CollectionView.GroupHeaderTemplate>
+                <CollectionView.ItemTemplate>
+                    <DataTemplate>
+                        <StackLayout>
+                            -->
+            <!--<Grid Padding="5,0,0,5">                      
+                            <Label   
+                            Grid.Column="0"
+                            Grid.Row="0"
+                            Text="{Binding FullTitle}"
+                            FontAttributes="Bold"  />
+                            <Label   
+                            Grid.Column="0"
+                            Grid.Row="1"
+                            Grid.ColumnSpan="2"
+                            Text="{Binding Text}"  />
+                            </Grid>-->
+            <!--
+                            <Label    
+                            Text="{Binding FullTitle}"
+                            FontAttributes="Bold" FontSize="Subtitle" />
+                            <Label    FontSize="Small"
+                            Text="{Binding Text}"  />
+                            <StackLayout.GestureRecognizers>
+                                <TapGestureRecognizer  NumberOfTapsRequired="1" Tapped="OnItemSelected"></TapGestureRecognizer>
+                            </StackLayout.GestureRecognizers>
+                        </StackLayout>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+                <CollectionView.GroupFooterTemplate>
+                    <DataTemplate>
+                        <Label Text="{Binding Count, StringFormat='Total verses: {0:D}'}"
+                   Margin="0,0,0,10" />
+                    </DataTemplate>
+                </CollectionView.GroupFooterTemplate>
+            </CollectionView>-->
+            <!--<CollectionView.ItemTemplate>
+                    <DataTemplate>
+                        <StackLayout Padding="10">
+                            <Label Text="{Binding FullTitle}" 
+                                d:Text="{Binding .}"
+                                LineBreakMode="NoWrap" 
+                                     BackgroundColor="LightSkyBlue" 
+                                Style="{DynamicResource ListItemTextStyle}" 
+                                FontSize="16" />
+                            <Label Text="{Binding Text}"  
+                                LineBreakMode="WordWrap"
+                                     BackgroundColor="LightGray" 
+                                Style="{DynamicResource ListItemDetailTextStyle}"
+                                FontSize="13" />
+                            <StackLayout Orientation="Horizontal">
+                                <Label Text="{Binding LastRecited}"
+                                     BackgroundColor="LightGray" 
+                                Style="{DynamicResource ListItemDetailTextStyle}"
+                                   FontSize="10"/>
+                                <Button Text="Recited Today" Clicked="Button_Clicked" ></Button>
+                            </StackLayout>
+                            <StackLayout.GestureRecognizers>
+                                <TapGestureRecognizer NumberOfTapsRequired="1" Tapped="OnItemSelected"></TapGestureRecognizer>
+                            </StackLayout.GestureRecognizers>
+                        </StackLayout>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>-->
+            <!--<CollectionView x:Name="ItemsCollectionView"
                 ItemsSource="{Binding Items}" SelectionMode="Single" SelectedItem="{Binding SelectedVerse, Mode=OneWayToSource}">
                 <CollectionView.ItemTemplate>
                     <DataTemplate>
@@ -44,19 +178,21 @@
                                      BackgroundColor="LightGray" 
                                 Style="{DynamicResource ListItemDetailTextStyle}"
                                 FontSize="13" />
-                            <StackLayout Orientation="Horizontal"> <Label Text="{Binding LastRecited}"
+                            <StackLayout Orientation="Horizontal">
+                                <Label Text="{Binding LastRecited}"
                                      BackgroundColor="LightGray" 
                                 Style="{DynamicResource ListItemDetailTextStyle}"
                                    FontSize="10"/>
                                 <Button Text="Recited Today" Clicked="Button_Clicked" ></Button>
-                            </StackLayout> 
+                            </StackLayout>
                             <StackLayout.GestureRecognizers>
                                 <TapGestureRecognizer NumberOfTapsRequired="1" Tapped="OnItemSelected"></TapGestureRecognizer>
                             </StackLayout.GestureRecognizers>
                         </StackLayout>
                     </DataTemplate>
                 </CollectionView.ItemTemplate>
-            </CollectionView>
+            </CollectionView>-->
+
         </StackLayout>
     </RefreshView>
 </ContentPage>
