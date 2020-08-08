@@ -13,22 +13,16 @@
                     <DataTemplate>
                         <StackLayout Padding="10">
                             <Label Text="{Binding FullTitle}" 
-                                d:Text="{Binding .}"
-                                LineBreakMode="NoWrap" 
-                                     BackgroundColor="LightSkyBlue" 
-                                Style="{DynamicResource ListItemTextStyle}" 
-                                FontSize="16" />
+                                   Style="{StaticResource Label_HeaderStyle}"   />
                             <Label Text="{Binding Text}"  
                                 LineBreakMode="WordWrap"
-                                     BackgroundColor="LightGray" 
-                                Style="{DynamicResource ListItemDetailTextStyle}"
-                                FontSize="13" />
+                                 Style="{StaticResource Label_VerseStyle}"  />
                             <StackLayout Orientation="Horizontal">
-                                <Label Text="{Binding LastRecited}"
-                                     BackgroundColor="LightGray" 
-                                Style="{DynamicResource ListItemDetailTextStyle}"
-                                   FontSize="10"/>
-                                <Button Text="Recited Today" Clicked="Button_Clicked" ></Button>
+                                <Label Text="{Binding sLastRecited}"                                       
+                                      Style="{StaticResource Label_LastRecitedStyle}" 
+                                       HorizontalOptions="FillAndExpand"  
+                                 />
+                                <Button Text="Recited Today" HorizontalOptions="FillAndExpand"  BackgroundColor="{StaticResource  Button_RecitedBackground}" Clicked="Button_Clicked" ></Button>
                             </StackLayout>
                             <StackLayout.GestureRecognizers>
                                 <TapGestureRecognizer NumberOfTapsRequired="1" Tapped="OnItemSelected"></TapGestureRecognizer>

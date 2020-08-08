@@ -6,6 +6,7 @@ using Xamarin.Forms;
 using Xamarin.Forms.Xaml;
 
 using MyKJV.Models;
+using MyKJV.ViewModels;
 
 namespace MyKJV.Views
 {
@@ -25,10 +26,11 @@ namespace MyKJV.Views
             //MenuPages.Add((int)MenuItemType.Memorized, (NavigationPage)tb.Children[1]);
             //MenuPages.Add((int)MenuItemType.Memorized, (NavigationPage)Detail);
             //MenuPages.Add((int)MenuItemType.Memorized, (NavigationPage)Detail);
-            MenuPages.Add((int)MenuItemType.Bible, new NavigationPage(new ItemsPage()));
-            MenuPages.Add((int)MenuItemType.Memorized, new NavigationPage(new VersesPage()));
+            MenuPages.Add((int)MenuItemType.Bible, new NavigationPage(new BibleMainPage()));
+            MenuPages.Add((int)MenuItemType.Memorized, new NavigationPage(new VersesMemorizedPage()));
             MenuPages.Add((int)MenuItemType.LastRecited, new NavigationPage(new LastRecitedPage()));
-            MenuPages.Add((int)MenuItemType.ImportExport, new NavigationPage(new ImportExport()));
+            MenuPages.Add((int)MenuItemType.ImportExport, new NavigationPage(new ImportExport(new ImportExportViewModel())));
+            MenuPages.Add((int)MenuItemType.BookGroupMemorized, new NavigationPage(new BookVersesMemorizedPage(new BooksGroupViewModel())));
             MenuPages.Add((int)MenuItemType.About, new NavigationPage(new AboutPage()));
         }
 
@@ -39,16 +41,19 @@ namespace MyKJV.Views
                 switch (id)
                 {
                     case (int)MenuItemType.Bible:
-                        MenuPages.Add(id, new NavigationPage(new ItemsPage()));
+                        MenuPages.Add(id, new NavigationPage(new BibleMainPage()));
                         break;
                     case (int)MenuItemType.Memorized:
-                        MenuPages.Add(id, new NavigationPage(new VersesPage()));
+                        MenuPages.Add(id, new NavigationPage(new VersesMemorizedPage()));
                         break;
                     case (int)MenuItemType.LastRecited:
                         MenuPages.Add(id, new NavigationPage(new LastRecitedPage()));
                         break;
                     case (int)MenuItemType.ImportExport:
-                        MenuPages.Add(id, new NavigationPage(new ImportExport()));
+                        MenuPages.Add(id, new NavigationPage(new ImportExport(new ImportExportViewModel())));
+                        break;
+                    case (int)MenuItemType.BookGroupMemorized:
+                        MenuPages.Add(id, new NavigationPage(new BookVersesMemorizedPage(new BooksGroupViewModel())));
                         break;
                     case (int)MenuItemType.About:
                         MenuPages.Add(id, new NavigationPage(new AboutPage()));

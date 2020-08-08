@@ -1,0 +1,99 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="MyKJV.Views.BibleMainPage"
+    x:Name="MainItemsPage"
+    xmlns="http://xamarin.com/schemas/2014/forms"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:d="http://xamarin.com/schemas/2014/forms/design"
+    xmlns:local="clr-namespace:MyKJV"
+    xmlns:localmodels="clr-namespace:MyKJV.ViewModels"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    BackgroundColor="#41494F"
+    BackgroundImageSource="kjvpic.jpg"
+    Title="{Binding Title}">
+
+    <ContentPage.Resources>
+        <local:VerseIsMemorizedValueConverter x:Key="VerseIsMemorizedValueConverter" />
+    </ContentPage.Resources>
+
+    <ContentPage.ToolbarItems>
+        <ToolbarItem Clicked="AddItem_Clicked" Text="Add" />
+    </ContentPage.ToolbarItems>
+
+    <RefreshView Command="{Binding LoadItemsCommand}" IsRefreshing="{Binding IsBusy, Mode=TwoWay}">
+        <StackLayout BackgroundColor="{StaticResource Page_Background}">
+            <Picker
+                x:Name="TestamentPicker"
+                SelectedIndexChanged="TestamentPicker_SelectedIndexChanged"
+                SelectedItem="{Binding TestamentName , 
+                Mode=OneWayToSource}"
+                Style="{StaticResource PickerStyle}"
+                Title="Old or New Testament">
+                <Picker.ItemsSource>
+                    <x:Array Type="{x:Type x:String}">
+                        <x:String>Old</x:String>
+                        <x:String>New</x:String>
+                        <x:String>Both</x:String>
+                    </x:Array>
+                </Picker.ItemsSource>
+            </Picker>
+            <Picker
+                x:Name="BookPicker"
+                ItemDisplayBinding="{Binding BookName}"
+                ItemsSource="{Binding BookDatas}"
+                SelectedIndexChanged="BookPicker_SelectedIndexChanged"
+                SelectedItem="{Binding CurrentBookData , Mode=OneWayToSource}"
+                Style="{StaticResource PickerStyle}"
+                Title="Book" />
+            <!--<Picker x:Name="BookPicker" ItemDisplayBinding="{Binding BookName}"   ItemsSource="{Binding BookNames}"  SelectedItem="{Binding BookName , Mode=OneWayToSource}"  SelectedIndexChanged="BookPicker_SelectedIndexChanged" Title="Book"></Picker>-->
+            <Picker
+                x:Name="ChapterPicker"
+                ItemDisplayBinding="{Binding ChapterNumberStr}"
+                ItemsSource="{Binding Chapters}"
+                SelectedIndexChanged="ChapterPicker_SelectedIndexChanged"
+                SelectedItem="{Binding CurrentChapter , Mode=OneWayToSource}"
+                Style="{StaticResource PickerStyle}"
+                Title="Chapter" />
+            <!--   Style="{StaticResource VerseHighlight}"           BackgroundColor="{Binding IsMemorized, Converter={StaticResource VerseIsMemorizedValueConverter}}"-->
+            <CollectionView x:Name="ItemsCollectionView" ItemsSource="{Binding Items}">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate>
+                        <StackLayout Padding="10">
+                            <Label
+                                d:Text="{Binding .}"
+                                FontSize="16"
+                                LineBreakMode="NoWrap"
+                                Style="{StaticResource Label_HeaderStyle}"
+                                Text="{Binding FullTitle}" />
+                            <Label
+                                BackgroundColor="{Binding IsMemorized, Converter={StaticResource VerseIsMemorizedValueConverter}}"
+                                d:Text="Item descripton"
+                                FontFamily="Comic Sans MS"
+                                FontSize="13"
+                                LineBreakMode="WordWrap"
+                                Text="{Binding Text}">
+                                <!--<Label.Triggers>
+                                    <DataTrigger  TargetType="Label" BindingContext="{Binding Source={RelativeSource AncestorType={x:Type localmodels:ItemsViewModel}}, Path=items[0]IsMemorized}" Value="true">
+                                        <Setter Property="BackgroundColor"  Value="LightGreen"></Setter>
+                                    </DataTrigger>
+                                </Label.Triggers>-->
+                            </Label>
+                            <BoxView BackgroundColor="{StaticResource Boxview_VerseBackground}" HeightRequest="20" />
+                            <StackLayout.GestureRecognizers>
+                                <TapGestureRecognizer NumberOfTapsRequired="1" Tapped="OnItemSelected" />
+                                <SwipeGestureRecognizer
+                                    Command="{Binding BindingContext.SwipeCommand, Source={x:Reference ItemsCollectionView}}"
+                                    CommandParameter="{Binding .}"
+                                    Swiped="SwipeGestureRecognizer_Swiped" />
+                                
+                            </StackLayout.GestureRecognizers>
+                        </StackLayout>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+                          
+        </StackLayout>
+    </RefreshView>
+
+</ContentPage>

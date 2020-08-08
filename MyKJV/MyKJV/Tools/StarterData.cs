@@ -1,5 +1,6 @@
 ﻿using Acr.UserDialogs;
 
+
 using MyKJV.Models;
 using MyKJV.Services;
 
@@ -12,6 +13,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -27,30 +29,13 @@ namespace MyKJV.Tools
             return GetData("MyKJV.Data.MostRecentVerses.csv");
         }
 
-        internal static async Task EnsureDataExists()
-        {
-            int count = -1;
-            try
-            {
-                using (var db = new DatabaseConnection().DbConnection())
-                    count = db.Table<Verse>().Count();
-            }
-            catch (Exception ex)
-            {
-                UserDialogs.Instance.Toast($"{ex.Message}.");
-            }
-            UserDialogs.Instance.Toast($"{count} rows in DB...");
-            if (count < 30000)
-            {
-                UserDialogs.Instance.Toast($"Importing...");
-                await Task.Run(() => ImportDBOrigCSV());
-                UserDialogs.Instance.Toast("Imported DB from CSV.");
-            }
-        }
 
-        public static void SetMemorizedDB(string resource)
+
+        public static async Task SetMemorizedDB(string resource, Action<double, uint> animatePbar)
         {
-            var db = new DatabaseConnection().DbConnection();
+            UserDB dcon = new UserDB();
+
+            var db = dcon.DbConn;
 
             int lineNum = 0;
             try
@@ -67,14 +52,15 @@ namespace MyKJV.Tools
                 {
                     using (var reader = new System.IO.StreamReader(stream))
                     {
-                        text = reader.ReadToEnd();
+                        text = await reader.ReadToEndAsync();
                     }
                 }
                 else
                     Debug.WriteLine("SHIT");
 
                 var csv = text.Split('\n');
-
+                double dval = 0;
+                uint length = (uint)csv.Length;
                 Regex regexBook = new Regex(@"[\d]* ?[A-z]+\b");
                 Regex regexChaptVerse = new Regex(@"\b[\d]+:[\d]+");
                 string book = ""; int ch = 0, vn = 0;
@@ -93,8 +79,9 @@ namespace MyKJV.Tools
                         v.IsMemorized = true;
                         db.Update(v);
                     }
-                    else
-                        Debug.WriteLine("NULL1\n" + line);
+                    animatePbar?.Invoke(++dval, length);
+                    //else
+                    //    Debug.WriteLine("NULL1\n" + line);
                 }
             }
             catch (Exception ex)
@@ -315,62 +302,109 @@ namespace MyKJV.Tools
 
             return bible;
         }*/
-
-        public static void ExportDb(SQLiteConnection db)
+        public static async Task<bool> ImportDb(string importPath, Action<double, uint> action)
         {
-            if (db == null)
-                db = new DatabaseConnection().DbConnection();
-            var filepath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Personal), "DBBack.txt");
-            if (File.Exists(filepath))
-                File.Delete(filepath);
-            FileStream fs = new FileStream(filepath, FileMode.CreateNew);
 
-            var vs = db.Table<Verse>();
+            UserDB dcon = new UserDB();
+            var db = dcon.DbConn;
 
-            foreach (var v in vs)
-            {
-                string str = $"insert into verse(Id, Testament, BookPosition, BookName, ChapterNumber, VerseNumber, Text, LastRecited, IsMemorized) VALUES " +
-                $"('{v.Id}', '{v.Testament}', '{v.BookPosition}', '{v.BookName}', '{v.ChapterNumber}', '{v.VerseNumber}', '{v.Text.Replace("\r", "").Replace("'", "''")}'," +
-                $"'{v.LastRecited.Ticks}', '{(v.IsMemorized ? "1" : "0")}');\n";
-                fs.Write(ASCIIEncoding.ASCII.GetBytes(str), 0, ASCIIEncoding.ASCII.GetByteCount(str));
-            }
-            fs.Flush();
-            fs.Close();
-            UserDialogs.Instance.Toast($"DB exported {vs.Count()} records.");
-        }
-        public static void ImportDb(SQLiteConnection db)
-        {
-            if (db == null)
-                db = new DatabaseConnection().DbConnection();
+            var filepath = importPath ?? throw new ArgumentNullException("ImportPath"); //string.IsNullOrEmpty(importPath)? Path.Combine(path, "DBBack.txt"):importPath;
+
             db.DropTable<Verse>();
             db.CreateTable<Verse>();
-            var filepath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Personal), "DBBack.txt");
+
             if (File.Exists(filepath))
             {
-                var vs = File.ReadAllLines(filepath);
-
-                foreach (var row in vs)
+                var vs = await Task.FromResult(File.ReadAllLines(filepath));
+                double val = 0d;
+                uint max = (uint)vs.Length;
+                await Task.Factory.StartNew(() =>
                 {
-                    try
+                    foreach (var row in vs)
                     {
+                        try
+                        {
+                            db.Execute(row);
 
-                        db.Execute(row);
+                            action?.Invoke(++val, max);//progress bar invoke on main
+                        }
+                        catch (Exception ex)
+                        {
+                            Debug.WriteLine("" + ex);
+                        }
                     }
-                    catch (Exception ex)
-                    {
-                        Debug.WriteLine("" + ex);
-                    }
-                }
-                var count = db.Table<Verse>().Count();
-                UserDialogs.Instance.Toast($"DB imported {count} records.");
+
+                    UserDialogs.Instance.Alert($"DB imported {val} records.");
+                    return val > 0;
+                });
             }
+            return false;
         }
 
-        public static void GetDataInsertDB(string resource)
+        public static async Task<bool> ExportDb(string exportPath, Action<double, uint> action, bool toFtp)
+        {
+            StringBuilder builder = new StringBuilder();
+
+            try
+            {
+                //try to upload it to ftp
+                UserDB dcon = new UserDB();
+                var db = dcon.DbConn;
+
+                var filepath = exportPath ?? throw new ArgumentNullException("ExportPath"); //string.IsNullOrEmpty(importPath)? Path.Combine(path, "DBBack.txt"):importPath;
+
+                //var filepath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Personal), "DBBack.txt");
+                if (!Directory.Exists(Path.GetDirectoryName(filepath)))
+                    Directory.CreateDirectory(Path.GetDirectoryName(filepath));
+                if (File.Exists(filepath))
+                    File.Delete(filepath);
+
+                var vs = db.Table<Verse>();
+                double val = 0d;
+                uint max = (uint)vs.Count();
+                foreach (var v in vs)
+                {
+                    string str = $"insert into verse(Id, Testament, BookPosition, BookName, ChapterNumber, VerseNumber, Text, LastRecited, IsMemorized) VALUES " +
+                    $"('{v.Id}', '{v.Testament}', '{v.BookPosition}', '{v.BookName}', '{v.ChapterNumber}', '{v.VerseNumber}', '{v.Text.Replace("\r", "").Replace("'", "''")}'," +
+                    $"'{v.LastRecited.Ticks}', '{(v.IsMemorized ? "1" : "0")}');\n";
+                    builder.Append(str);
+                    action?.Invoke(++val, max);//progress bar invoke on main
+                }
+
+                FileStream fs = new FileStream(filepath, FileMode.CreateNew);
+                fs.Flush();
+                fs.Close();
+                UserDialogs.Instance.Alert($"DB exported {vs.Count()} records.");
+                return true;
+            }
+            catch (Exception ex)
+            {
+                UserDialogs.Instance.Alert($"Error writing text file.{ex}");
+            }
+            try
+            {
+                if (toFtp)
+                {
+                    await FtpHandler.SendDbToFTP("db.Txt", file: ASCIIEncoding.ASCII.GetBytes(builder.ToString()));
+
+                    await FtpHandler.SendDbToFTP();
+                }
+
+            }
+            catch (Exception ex)
+            {
+                UserDialogs.Instance.Alert($"Error sending to ftp{ex}");
+            }
+            return false;
+
+        }
+        public static async Task GetDataInsertDB(string resource, Action<double, uint> animatePbar)
         {
 
             CreateTables();
-            var db = new DatabaseConnection().DbConnection();
+            UserDB dcon = new UserDB();
+            var db = dcon.DbConn;
+
 
             int lineNum = 0;
             try
@@ -382,29 +416,31 @@ namespace MyKJV.Tools
                 //    info += "found resource: " + res;
                 //Debug.WriteLine(info);
                 Stream stream = assembly.GetManifestResourceStream(resource);
-                string text = "";
+                List<string> csv = new List<string>();
                 if (stream != null)
                 {
                     using (var reader = new System.IO.StreamReader(stream))
                     {
-                        text = reader.ReadToEnd();
+                        while (-1 < reader.Peek())
+                        {
+                            csv.Add(await reader.ReadLineAsync());
+                        }
                     }
                 }
                 else
                     Debug.WriteLine("SHIT");
 
-                var csv = text.Split('\n');
-
-
-
                 string strCurrentBook = "";
-
+                double dval = 0;
+                uint length = (uint)csv.Count;
                 Regex regexBook = new Regex(@"[\d]* ?[A-z]+\b");
                 Regex regexChaptVerse = new Regex(@"\b[\d]+:[\d]+");
                 bool isOldTestament = true;
                 int bookIndex = 0;
-                for (int i = 0; i < csv.Length; i++)
+                for (int i = 0; i < length; i++)
                 {
+                    //if (i == max)
+                    //    break;
                     lineNum++;
                     string line = csv[i];
                     string strRowBook = regexBook.Match(line).Value;
@@ -428,17 +464,18 @@ namespace MyKJV.Tools
                         BookName = strRowBook,
                         Testament = isOldTestament ? "Old" : "New",
                         //Id = i+1,
-                        LastRecited = DateTime.Now.AddDays(-30),
+                        LastRecited = DateTime.Now.AddDays(-3000),
                         IsMemorized = false,
                         VerseNumber = intVerseNum,
                         BookPosition = bookIndex
                     };
                     db.Insert(v);
+                    animatePbar?.Invoke(++dval, length);
                 }
             }
             catch (Exception ex)
             {
-                Debug.WriteLine("THIS LINE " + lineNum + "\n" + ex.ToString());
+                System.Diagnostics.Debug.WriteLine("THIS LINE " + lineNum + "\n" + ex.ToString());
             }
 
             var vs = db.Table<Verse>().Count();
@@ -448,11 +485,12 @@ namespace MyKJV.Tools
         {
             try
             {
-                using (var db = new DatabaseConnection().DbConnection())
+                UserDB dcon = new UserDB();
+
+                using (var db = dcon.DbConn)
                 {
                     try
                     {
-
                         db.DropTable<Verse>();
                     }
                     catch (Exception ex)
@@ -469,12 +507,14 @@ namespace MyKJV.Tools
             }
         }
 
-        internal static void ClearDb(object p)
+        internal static async Task ClearDb(object p)
         {
             try
             {
-                var db = new DatabaseConnection().DbConnection();
-                db.DeleteAll<Verse>();
+                UserDB dcon = new UserDB();
+
+                using (var db = dcon.DbConn)
+                    db.DeleteAll<Verse>();
                 UserDialogs.Instance.Toast("DB cleared");
             }
             catch (Exception ex)
@@ -482,11 +522,36 @@ namespace MyKJV.Tools
                 UserDialogs.Instance.Toast($"{ex.Message}");
             }
         }
-        internal static void ImportDBOrigCSV()
+        public static async Task ImportDBOrigCSV(Action<double, uint> animatePbar)
         {
-            GetDataInsertDB("MyKJV.Data.KJVWHOLE.csv");
-            SetMemorizedDB("MyKJV.Data.MostRecentVerses.csv");
-            UserDialogs.Instance.Toast("Imported DB from CSV.");
+            int count = -1;
+            UserDB dcon = new UserDB();
+            bool createAndInsert = false;
+            var db = dcon.DbConn;
+            try
+            {
+                count = db.Table<Verse>().Count();
+            }
+            catch (Exception ex)
+            {
+                UserDialogs.Instance.Toast($"{ex.Message}.");
+            }
+            UserDialogs.Instance.Confirm(new ConfirmConfig()
+            {
+                CancelText = "Forget it.",
+                Message = $"There are {count} rows in DB, import from csv?",
+                OkText = "Sounds like a plan!",
+                Title = "Data Issue",
+                OnAction = delegate (bool confirm) { createAndInsert = confirm; }
+            });
+            if (createAndInsert)
+            {
+                UserDialogs.Instance.Toast($"Data!..{count}");
+                await GetDataInsertDB("MyKJV.Data.KJVWHOLE.csv", animatePbar);
+
+                await SetMemorizedDB("MyKJV.Data.MostRecentVerses.csv", animatePbar);
+                UserDialogs.Instance.Alert($"Created db records successfully.");
+            }
         }
     }
 

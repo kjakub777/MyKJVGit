@@ -16,11 +16,11 @@ namespace MyKJV.Views
     // Learn more about making custom code visible in the Xamarin.Forms previewer
     // by visiting https://aka.ms/xamarinforms-previewer
     [DesignTimeVisible(false)]
-    public partial class ItemsPage : ContentPage
+    public partial class BibleMainPage : ContentPage
     {
         ItemsViewModel viewModel;
 
-        public ItemsPage()
+        public BibleMainPage()
         {
             InitializeComponent();
 
@@ -72,13 +72,9 @@ namespace MyKJV.Views
             await viewModel.ExecuteLoadVersesCommand();
         }
 
-        private void SwipeGestureRecognizer_Swiped(object sender, SwipedEventArgs e)
-        {
-            var v = e.Parameter as Verse;
-            if (v != null)
-            {
-                viewModel.SetMemorized(v, e.Direction == SwipeDirection.Left ? true : false);
-            }
+        private async void SwipeGestureRecognizer_Swiped(object sender, SwipedEventArgs e)
+        { 
+            await viewModel.ExecuteSwipeCommand(e.Parameter);
         }
     }
 }

@@ -59,11 +59,15 @@ namespace MyKJV.Services
 
         public async Task<IEnumerable<Verse>> GetVersesAsync(bool memorized = false)
         {
-            var db = new DatabaseConnection().DbConnection();
-            if (memorized)
-                return await Task.FromResult(db.Table<Verse>().Where(x => x.IsMemorized));
+            UserDB dcon = new UserDB();
+
+            using(var db = dcon.DbConn)
+            {
+                if(memorized)
+                    return await Task.FromResult(db.Table<Verse>().Where(x => x.IsMemorized));
             else
-                return await Task.FromResult(db.Table<Verse>());
+                    return await Task.FromResult(db.Table<Verse>());
+            }
         }
 
         public async Task<Bible> GetMemorizedAsync(bool forceRefresh = false)
@@ -74,8 +78,10 @@ namespace MyKJV.Services
 
         public async Task<IEnumerable<BookData>> GetBooksAsync(string testament = "")
         {
-            var db = new DatabaseConnection().DbConnection();
-            if (string.IsNullOrEmpty(testament) || testament == "Both")
+            UserDB dcon = new UserDB();
+
+            var db = dcon.DbConn;
+                if (string.IsNullOrEmpty(testament) || testament == "Both")
                 return await Task.FromResult(db.Query<Verse>("select distinct bookname from verse ")
                 .Select(x => new BookData() { BookName = x.BookName }));
             else
@@ -85,7 +91,9 @@ namespace MyKJV.Services
         }
         public async Task<IEnumerable<int>> GetChaptersAsync(string bookName)
         {
-            var db = new DatabaseConnection().DbConnection();
+            UserDB dcon = new UserDB();
+
+            var db = dcon.DbConn;
             if (string.IsNullOrEmpty(bookName))
                 return new List<int>();
             else
@@ -95,7 +103,9 @@ namespace MyKJV.Services
         }
         public async Task<IEnumerable<Verse>> GetVersesAsync(string bookName, int chapter)
         {
-            var db = new DatabaseConnection().DbConnection();
+            UserDB dcon = new UserDB();
+
+            var db = dcon.DbConn;
             if (string.IsNullOrEmpty(bookName) || chapter == 0)
                 return new List<Verse>();
             return await Task.FromResult(db.Table<Verse>()
@@ -103,20 +113,24 @@ namespace MyKJV.Services
                 .OrderBy(x => x.VerseNumber));
 
         }
-        public async Task<IEnumerable<BookData>> GetMemorizedBooks(string testament, bool memorized)
+        public async Task<IEnumerable<BookData>> GetMemorizedBooks(string testament)
         {
-            var db = new DatabaseConnection().DbConnection();
+            UserDB dcon = new UserDB();
+
+            var db = dcon.DbConn;
             if (string.IsNullOrEmpty(testament) || testament == "Both")
-                return await Task.FromResult(db.Query<Verse>("select distinct bookname from verse where IsMemorized=?", memorized)
+                return await Task.FromResult(db.Query<Verse>("select distinct bookname from verse where IsMemorized=?", true)
                 .Select(x => new BookData() { BookName = x.BookName }));
             else
-                return await Task.FromResult(db.Query<Verse>("select distinct bookname from verse where testament=? and IsMemorized=?", testament, memorized)
+                return await Task.FromResult(db.Query<Verse>("select distinct bookname from verse where testament=? and IsMemorized=?", testament, true)
                 .Select(x => new BookData() { BookName = x.BookName }));
 
         }
         public async Task<IEnumerable<Verse>> GetVersesAsync(string bookName, bool memorized)
         {
-            var db = new DatabaseConnection().DbConnection();
+            UserDB dcon = new UserDB();
+
+            var db = dcon.DbConn;
             if (string.IsNullOrEmpty(bookName))
                 return new List<Verse>();
             if (bookName == "All")
@@ -134,8 +148,9 @@ namespace MyKJV.Services
         }
         public async Task<IEnumerable<Verse>> GetMemoryVersesAsync(string testament)
         {
-            var db = new DatabaseConnection().DbConnection();
+            UserDB dcon = new UserDB();
 
+            var db = dcon.DbConn;
             if (testament == "Both")
                 return await Task.FromResult(db.Table<Verse>()
                .Where(x => x.IsMemorized)
@@ -149,14 +164,18 @@ namespace MyKJV.Services
 
         public async Task<bool> SetVerseMemorized(Verse v, bool val)
         {
-            var db = new DatabaseConnection().DbConnection();
+            UserDB dcon = new UserDB();
+
+            var db = dcon.DbConn;
             v.IsMemorized = val;
             return await Task.FromResult(db.Update(v) == 1);
         }
 
         public Task<bool> UpdateRecited(Verse verse)
         {
-            var db = new DatabaseConnection().DbConnection();
+            UserDB dcon = new UserDB();
+
+            var db = dcon.DbConn;
             if (verse.LastRecited >= DateTime.Now.AddDays(-1))
                 verse.LastRecited = DateTime.Now.AddDays(-60);
             else
@@ -166,7 +185,9 @@ namespace MyKJV.Services
 
         public async Task<IEnumerable<Verse>> GetLastRecitedAsync()
         {
-            var db = new DatabaseConnection().DbConnection();
+            UserDB dcon = new UserDB();
+
+            var db = dcon.DbConn;
             return await Task.FromResult(db.Table<Verse>()
                 .Where(x => x.IsMemorized)
                 .OrderBy(x => x.LastRecited)

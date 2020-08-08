@@ -26,6 +26,7 @@ namespace MyKJV.Views
                 new HomeMenuItem {Id = MenuItemType.Memorized, Title="Memorized" },
                 new HomeMenuItem {Id = MenuItemType.LastRecited, Title="Last Recited" },
                 new HomeMenuItem {Id = MenuItemType.ImportExport, Title="Import/Export" },
+                new HomeMenuItem {Id = MenuItemType.BookGroupMemorized, Title="Book Groups Memorized" },
                 new HomeMenuItem {Id = MenuItemType.About, Title="About" }
             };
 

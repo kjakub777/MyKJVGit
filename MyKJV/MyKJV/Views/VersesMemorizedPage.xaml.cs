@@ -16,15 +16,15 @@ namespace MyKJV.Views
     // Learn more about making custom code visible in the Xamarin.Forms previewer
     // by visiting https://aka.ms/xamarinforms-previewer
     [DesignTimeVisible(false)]
-    public partial class VersesPage : ContentPage
+    public partial class VersesMemorizedPage : ContentPage
     {
-        VersesViewModel viewModel;
+        VersesMemorizedViewModel viewModel;
 
-        public VersesPage()
+        public VersesMemorizedPage()
         {
             InitializeComponent();
 
-            BindingContext = viewModel = new VersesViewModel();
+            BindingContext = viewModel = new VersesMemorizedViewModel();
         }
 
         async void OnItemSelected(object sender, EventArgs args)
@@ -96,15 +96,15 @@ namespace MyKJV.Views
     // Learn more about making custom code visible in the Xamarin.Forms previewer
     // by visiting https://aka.ms/xamarinforms-previewer
     [DesignTimeVisible(false)]
-    public partial class VersesPage : ContentPage
+    public partial class VersesMemorizedPage : ContentPage
     {
-        VersesViewModel viewModel;
+        VersesMemorizedViewModel viewModel;
 
-        public VersesPage()
+        public VersesMemorizedPage()
         {
             InitializeComponent();
 
-            BindingContext = viewModel = new VersesViewModel();
+            BindingContext = viewModel = new VersesMemorizedViewModel();
         }
 
         async void OnItemSelected(object sender, EventArgs args)

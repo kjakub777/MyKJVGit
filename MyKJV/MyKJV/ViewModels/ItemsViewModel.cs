@@ -16,7 +16,7 @@ namespace MyKJV.ViewModels
 {
     public class ItemsViewModel : BaseViewModel
     {
-
+        
         string testamentName;
         public string TestamentName
         {
@@ -90,7 +90,7 @@ namespace MyKJV.ViewModels
         public ObservableCollection<ChapterData> Chapters { get; set; }
         public ObservableCollection<Verse> Items { get; set; }
         public Command LoadItemsCommand { get; set; }
-        public Command SwipeCommand { get; set; }
+        public Command<object> SwipeCommand { get; set; }
 
         internal async void SetMemorized(Verse v1, bool v2)
         {
@@ -109,7 +109,11 @@ namespace MyKJV.ViewModels
             Chapters = new ObservableCollection<ChapterData>();
             Items = new ObservableCollection<Verse>();
             BookDatas = new ObservableCollection<BookData>();
+
             LoadItemsCommand = new Command(async () => await ExecuteLoadItemsCommand());
+            SwipeCommand = new Command<object>(async(obj) =>
+            {
+            });
             //LoadBooksCommand = new Command<Testament>(async (t) => await ExecuteLoadBooksCommand(t));
             //LoadChaptersCommand = new Command<Book>(async (b) => await ExecuteLoadChaptersCommand(b));
             //LoadVersesCommand = new Command<Chapter>(async (c) => await ExecuteLoadVersesCommand(c));
@@ -122,6 +126,13 @@ namespace MyKJV.ViewModels
             });
         }
 
+     public   async Task ExecuteSwipeCommand(object obj)
+        { 
+            if (obj is Verse v)
+            {
+              SetMemorized(v, !v.IsMemorized);
+            }
+        }
         async Task ExecuteLoadItemsCommand()
         {
             IsBusy = true;

@@ -13,7 +13,8 @@ using Xamarin.Forms.Internals;
 namespace MyKJV.ViewModels
 {
     public class LastRecitedViewModel : BaseViewModel
-    {
+    { 
+
         Verse selectedVerse;
         public Verse SelectedVerse
         {

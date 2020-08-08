@@ -6,9 +6,9 @@
              mc:Ignorable="d"
              x:Class="MyKJV.Views.MenuPage"
              Title="Menu">
-             
-    <StackLayout VerticalOptions="FillAndExpand">
-        <ListView x:Name="ListViewMenu"
+
+    <StackLayout VerticalOptions="FillAndExpand"  BackgroundColor="#151909">
+        <ListView x:Name="ListViewMenu" 
                     HasUnevenRows="True">
             <d:ListView.ItemsSource>
                 <x:Array Type="{x:Type x:String}">
@@ -20,7 +20,7 @@
                 <DataTemplate>
                     <ViewCell>
                         <Grid Padding="10">
-                            <Label Text="{Binding Title}" d:Text="{Binding .}" FontSize="20"/>
+                            <Label TextColor="#EEE3C4" Text="{Binding Title}" d:Text="{Binding .}" FontSize="20"/>
                         </Grid>
                     </ViewCell>
                 </DataTemplate>

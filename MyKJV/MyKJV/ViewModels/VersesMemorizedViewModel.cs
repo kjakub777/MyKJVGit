@@ -13,17 +13,16 @@ using System.Collections.Generic;
 
 namespace MyKJV.ViewModels
 {
-    public class VersesViewModel : BaseViewModel
+    public class VersesMemorizedViewModel : BaseViewModel
     {
 
-        private bool _expanded;
         BookData currentBookData;
 
 
         Verse selectedVerse;
         string testamentName;
 
-        public VersesViewModel()
+        public VersesMemorizedViewModel()
         {
             Title = "Memorized";
             BookDatas = new ObservableCollection<BookData>();
@@ -195,7 +194,7 @@ using Xamarin.Forms.Internals;
 
 namespace MyKJV.ViewModels
 {
-    public class VersesViewModel : BaseViewModel
+    public class VersesMemorizedViewModel : BaseViewModel
     {
         Verse selectedVerse;
         public Verse SelectedVerse
@@ -230,7 +229,7 @@ namespace MyKJV.ViewModels
         public ObservableCollection<BookData> BookDatas { get; set; }
         public ObservableCollection<Verse> Items { get; set; }
         public Command LoadItemsCommand { get; set; }
-        public VersesViewModel()
+        public VersesMemorizedViewModel()
         {
             Title = "Memorized";
             BookDatas = new ObservableCollection<BookData>();

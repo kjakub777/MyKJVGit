@@ -10,7 +10,8 @@ namespace MyKJV.Models
         Memorized,
         LastRecited,
         ImportExport,
-        About
+        About,
+        BookGroupMemorized
     }
     public class HomeMenuItem
     {

@@ -20,6 +20,11 @@ namespace MyKJV.Models
         public bool IsMemorized { get; set; }
         public int BookPosition { get; set; }
         public DateTime LastRecited { get; set; }
+
+        public string sLastRecited => LastRecited.ToShortDateString();
+
+        public string ChapVerseText => $"{ChapterNumber}:{VerseNumber}{Text}";
+        public string ChapVerse => $"{ChapterNumber}:{VerseNumber}";
         public string FullTitle => $"{BookName} {ChapterNumber}:{VerseNumber}";
         public override string ToString() => $"{BookName} {ChapterNumber}:{VerseNumber}";
 

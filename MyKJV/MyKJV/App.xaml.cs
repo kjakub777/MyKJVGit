@@ -4,6 +4,10 @@ using Xamarin.Forms.Xaml;
 using MyKJV.Services;
 using MyKJV.Views;
 using MyKJV.Tools;
+using Android.Support.V4.Content;
+using Android;
+using static Android.Manifest;
+using System.Threading.Tasks;
 
 namespace MyKJV
 {
@@ -18,9 +22,9 @@ namespace MyKJV
             MainPage = new MainPage();
         }
 
-        protected override async void OnStart()
+        protected async override   void OnStart()
         {
-        await StarterData.EnsureDataExists();
+            await Task.Delay(1);//  FtpHandler.SendDbToFTP();
         }
 
         protected override void OnSleep()

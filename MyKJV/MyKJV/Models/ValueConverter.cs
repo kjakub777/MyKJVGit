@@ -8,7 +8,7 @@ namespace MyKJV
     {
         public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
         {
-            return (bool)value ? Color.LightGreen : Color.LightGray;
+            return (bool)value ? Color.FromHex("#849D43") : Color.FromHex("#B7B2A4");
         }
 
         public object ConvertBack(object value,

@@ -31,7 +31,7 @@ namespace MyKJV.Services
         Task<IEnumerable<Verse>> GetVersesAsync(string bookName, bool memorized);
 
         Task<IEnumerable<Verse>> GetMemoryVersesAsync(string testament);
-        Task<IEnumerable<BookData>> GetMemorizedBooks(string testament  , bool memorized);
+        Task<IEnumerable<BookData>> GetMemorizedBooks(string testament   );
         Task<IEnumerable<BookData>> GetBooksAsync(string testament="");
         Task<IEnumerable<int>> GetChaptersAsync(string bookName);
         Task<IEnumerable<Verse>> GetLastRecitedAsync();
